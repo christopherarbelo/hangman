@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
-require_relative 'word_base.rb'
-require_relative 'game.rb'
+require_relative 'word_base'
+require_relative 'game'
+require_relative 'serializable'
 
 # Hangman class
 class Hangman < Game
   include WordBase
-  attr_accessor :board, :strikes, :letters
+  include Serializable
+  attr_accessor :board, :strikes, :letters, :loaded
   attr_reader :word, :max_strikes
 
   def initialize
@@ -22,7 +24,7 @@ class Hangman < Game
   end
 
   def play_game
-    initialize_game
+    initialize_game unless loaded?
     until game_over?
       show_board
       guess = guess_letter
@@ -63,7 +65,12 @@ class Hangman < Game
     loop do
       print "Guess a letter #{letters.join(' ')}: "
       input = gets.chomp.downcase
+      save and exit if input.downcase == 'save'
       return input if letters.include? input
     end
+  end
+
+  def loaded?
+    self.loaded = false or true if loaded
   end
 end
